@@ -14,10 +14,7 @@ builder.Services.AddDbContext<AuctionDbContext>(opt =>
 {
     // 从配置文件中获取数据库连接字符串，并使用Npgsql作为数据库提供程序
     opt.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"));
-}
-
-);
-    
+});
 
 var app = builder.Build();// 构建应用程序
 
@@ -28,5 +25,14 @@ app.UseAuthorization();// 启用授权中间件
 
 app.MapControllers();// 映射控制器到应用程序的请求
 
+
+try
+{
+    DbInitializer.InitDb(app);// 初始化数据库
+}
+catch (Exception e)  //exception handling
+{
+    Console.WriteLine(e);
+}
 
 app.Run();// 运行应用程序

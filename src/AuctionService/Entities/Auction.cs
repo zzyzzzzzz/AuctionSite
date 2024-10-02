@@ -6,8 +6,9 @@ namespace AuctionService.Entities;
 public class Auction
 {
     public Guid Id { get; set; }
-
-    public string Title { get; set; }
+ 
+    public int ReservePrice { get; set; } = 0;
+    //public string Title { get; set; }
     public string Seller { get; set; }
     public string Winner { get; set; }
     public int? SoldAmount { get; set; }

@@ -37,6 +37,9 @@ namespace AuctionService.Data.Migrations
                     b.Property<int?>("CurrentHighBid")
                         .HasColumnType("integer");
 
+                    b.Property<int>("ReservePrice")
+                        .HasColumnType("integer");
+
                     b.Property<string>("Seller")
                         .HasColumnType("text");
 
@@ -45,9 +48,6 @@ namespace AuctionService.Data.Migrations
 
                     b.Property<int>("Status")
                         .HasColumnType("integer");
-
-                    b.Property<string>("Title")
-                        .HasColumnType("text");
 
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
