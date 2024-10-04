@@ -6,9 +6,9 @@ public class UpdateAuctionDto
 {//这个类用于更新拍卖的信息 用户不能再修改imageurl
     public string Make { get; set; }
     public string Model { get; set; }
-    public int Year { get; set; }
+    public int? Year { get; set; }
     public string Color { get; set; }
-    public int Mileage { get; set; }
+    public int? Mileage { get; set; }
 }
 
 

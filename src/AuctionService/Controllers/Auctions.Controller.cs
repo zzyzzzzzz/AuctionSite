@@ -72,5 +72,45 @@ public class AuctionsController : ControllerBase //ControllerBase是一个ASP.NE
     }
 
 
- 
+    [HttpPut("{id}")]
+    //我们可以在这里返回一个没有任何类型参数的操作结果，并指定其名称,因为我们不需要返回任何数据
+    public async Task<ActionResult> UpdateAuction(Guid id, UpdateAuctionDto updateAuctionDto)
+    {
+        //我们需要首先从与此特定ID匹配的数据库中获取auction,然后我们可以更新它
+        var auction = await _context.Auctions.Include(x=>x.Item)
+            .FirstOrDefaultAsync(x=>x.Id == id);
+
+            //然后检查是否找到了这个auction
+            if(auction == null) return NotFound();   //没在database找到能update的
+            //TODO： Check if seller == username
+            auction.Item.Make = updateAuctionDto.Make ?? auction.Item.Make;
+            auction.Item.Model = updateAuctionDto.Model ?? auction.Item.Model;
+            auction.Item.Color = updateAuctionDto.Color ?? auction.Item.Color;
+            auction.Item.Mileage = updateAuctionDto.Mileage ?? auction.Item.Mileage; 
+            auction.Item.Year = updateAuctionDto.Year ?? auction.Item.Year;
+            //这后面我们需要把UpdateAuctionDto中的int 转为 int? 因为int?可以为null
+
+            var result = await _context.SaveChangesAsync() > 0;
+
+            if(result) return Ok();
+            return BadRequest("Problem saving changes");
+    }
+
+
+
+
+
+    [HttpDelete("{id}")] //删除一个拍卖品 这里要id是因为我们需要知道删除哪个拍卖品
+    public async Task<ActionResult> DeleteAuction(Guid id)
+    {
+        var auction = await _context.Auctions.FindAsync(id);
+        if(auction == null) return NotFound();
+
+        //TODO: Check if seller == username
+
+        _context.Auctions.Remove(auction);
+        var result = await _context.SaveChangesAsync() > 0;
+        if(!result) return BadRequest("Problem deleting the auction");
+        return Ok();
+    }
 }
