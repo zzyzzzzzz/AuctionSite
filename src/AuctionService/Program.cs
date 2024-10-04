@@ -1,4 +1,3 @@
-using AuctionService;
 using AuctionService.Data;
 using Microsoft.EntityFrameworkCore;
 
@@ -9,14 +8,13 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 
 
-
-
 // 注册数据库上下文（AuctionDbContext）并配置Npgsql（PostgreSQL的EF Core提供程序）
 builder.Services.AddDbContext<AuctionDbContext>(opt =>
 {
     
     opt.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"));// 从配置文件中获取数据库连接字符串，并使用Npgsql作为数据库提供程序
 });
+
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());// 注册AutoMapper服务,后面的是location of the assemblies
 
 var app = builder.Build();// 构建应用程序
