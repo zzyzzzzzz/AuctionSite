@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace AuctionService.DTOs;
 
-public class CreateAuctionDtos
+public class CreateAuctionDto
 {
     [Required]  //这个是C#中的特性，用于表示该属性是必须的
     public string Make { get; set; }

@@ -12,9 +12,9 @@ public class MappingProfiles:Profile
     {
         CreateMap<Auction, AuctionDto>().IncludeMembers(x => x.Item);  
         CreateMap<Item, AuctionDto>();
-        CreateMap<CreateAuctionDtos, Auction>()
+        CreateMap<CreateAuctionDto, Auction>()
             .ForMember(d => d.Item, o =>o.MapFrom(s =>s));
-        CreateMap<CreateAuctionDtos, Item>();
+        CreateMap<CreateAuctionDto, Item>();
 
         //CreateMap是AutoMapper的一个方法，用于创建映射关系
         //语法是CreateMap<源类型，目标类型>()
@@ -24,13 +24,13 @@ public class MappingProfiles:Profile
         //这个是将Item映射到AuctionDto  
         //这里没有使用IncludeMembers方法，因为Item类中没有导航属性
 
-        //这个是将CreateAuctionDtos映射到Auction
+        //这个是将CreateAuctionDto映射到Auction
             //ForMember是AutoMapper的一个方法，用于指定源类型和目标类型的成员
             //d是目标类型的成员，o是源类型的成员, s是源类型
             //MapFrom是AutoMapper的一个方法，用于指定源类型的成员
-            //这里的意思是将CreateAuctionDtos的所有成员映射到Auction的Item成员
+            //这里的意思是将CreateAuctionDto的所有成员映射到Auction的Item成员
 
-        //这个是将CreateAuctionDtos映射到Item
+        //这个是将CreateAuctionDto映射到Item
 
         //最后还要把这个service放到program.cs中
 

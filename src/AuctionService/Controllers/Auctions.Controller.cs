@@ -3,6 +3,7 @@ using AuctionService.Data;
 using Microsoft.AspNetCore.Mvc;
 using AuctionService.DTOs;
 using Microsoft.EntityFrameworkCore;
+using AuctionService.Entities;
 
 
 namespace AuctionService.Controllers;
@@ -49,5 +50,27 @@ public class AuctionsController : ControllerBase //ControllerBase是一个ASP.NE
         return _mapper.Map<AuctionDto>(auction);
         
     }
+
+    [HttpPost]
+    public async Task<ActionResult<AuctionDto>> CreateAuction(CreateAuctionDto auctionDto)
+
+    {
+        var auction = _mapper.Map<Auction>(auctionDto);
+         
+        //TODO: Add current user as seller
+        auction.Seller = "test";
+
+        _context.Auctions.Add(auction);
+
+        var result = await _context.SaveChangesAsync()> 0 ; //if is 0 then means no changes were made
+
+        if(!result) return BadRequest("Could not save changes to the database");
+
+        //我们还需要告诉客户端我们已经成功创建了一个拍卖品
+        //我们想要告诉them the location of the newly created resource which is GetAuctionById
+        return CreatedAtAction(nameof(GetAuctionById), new {auction.Id}, _mapper.Map<AuctionDto>(auction));//从entity映射到dto
+    }
+
+
  
 }
