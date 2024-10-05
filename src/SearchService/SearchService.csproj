@@ -7,6 +7,14 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Content Remove="Data\auctions.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="Data\auctions.json" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="AutoMapper" Version="13.0.1" />
     <PackageReference Include="MongoDB.Entities" Version="23.1.1" />
   </ItemGroup>
