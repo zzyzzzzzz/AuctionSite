@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using AuctionService.DTOs;
 using Microsoft.EntityFrameworkCore;
 using AuctionService.Entities;
+using AutoMapper.QueryableExtensions;
 
 
 namespace AuctionService.Controllers;
@@ -27,15 +28,18 @@ public class AuctionsController : ControllerBase //ControllerBase是一个ASP.NE
     }
 
     [HttpGet] //为了获取所<有拍卖品
-    public async Task<ActionResult<List<AuctionDto>>> GetAllAuctions()
+    public async Task<ActionResult<List<AuctionDto>>> GetAllAuctions(string date) //这里我们需要一个参数来过滤拍卖品
     {
-        var auctions = await _context.Auctions 
-            //relatied property
-            .Include(x=>x.Item)
-            .OrderBy(x=>x.Item.Make)
-            .ToListAsync();
 
-        return _mapper.Map<List<AuctionDto>>(auctions);
+        var query = _context.Auctions.OrderBy(x=>x.Item.Make).AsQueryable();
+
+        if(!string.IsNullOrEmpty(date))
+        {
+            query = query.Where(x => x.UpdatedAt.CompareTo(DateTime.Parse(date).ToUniversalTime()) > 0) ;//退回超过这个日期的拍卖品
+
+        }
+
+        return await query.ProjectTo<AuctionDto>(_mapper.ConfigurationProvider).ToListAsync(); //这里我们使用ProjectTo方法来映射我们的数据  
 
     }
 
