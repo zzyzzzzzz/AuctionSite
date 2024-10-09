@@ -2,6 +2,7 @@ using System;
 using AutoMapper;
 using AuctionService.Entities;
 using AuctionService.DTOs;
+using Contracts;
 namespace AuctionService.RequestHelpers;
 
 //profiles是AutoMapper的一个核心类，用于创建映射关系
@@ -15,6 +16,7 @@ public class MappingProfiles:Profile
         CreateMap<CreateAuctionDto, Auction>()
             .ForMember(d => d.Item, o =>o.MapFrom(s =>s));
         CreateMap<CreateAuctionDto, Item>();
+        CreateMap<AuctionDto, AuctionCreated>();
 
         //CreateMap是AutoMapper的一个方法，用于创建映射关系
         //语法是CreateMap<源类型，目标类型>()

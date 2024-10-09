@@ -5,6 +5,8 @@ using AuctionService.DTOs;
 using Microsoft.EntityFrameworkCore;
 using AuctionService.Entities;
 using AutoMapper.QueryableExtensions;
+using MassTransit;
+using Contracts;
 
 
 namespace AuctionService.Controllers;
@@ -13,18 +15,19 @@ namespace AuctionService.Controllers;
 [ApiController]
 [Route("api/auctions")]
 
-
-
 //用于构建不带视图View的 MVC 控制器。
 //(为什么要不带视图的)因为我们的API不需要视图，只需要返回数据
 public class AuctionsController : ControllerBase //ControllerBase是一个ASP.NET Core MVC控制器的基类，它提供了一些方法和属性，用于处理HTTP请求。
 {
     private readonly AuctionDbContext _context; //数据库上下文 用于连接数据库 
     private readonly IMapper _mapper; //AutoMapper 用于映射数据
-    public AuctionsController(AuctionDbContext context, IMapper mapper)
+    private readonly IPublishEndpoint _publishEndpoint;
+    public AuctionsController(AuctionDbContext context, IMapper mapper, 
+    IPublishEndpoint publishEndpoint) 
     {
         _context = context;
         _mapper = mapper;
+        _publishEndpoint = publishEndpoint;
     }
 
     [HttpGet] //为了获取所<有拍卖品
@@ -68,11 +71,15 @@ public class AuctionsController : ControllerBase //ControllerBase是一个ASP.NE
 
         var result = await _context.SaveChangesAsync()> 0 ; //if is 0 then means no changes were made
 
+        var newAuction = _mapper.Map<AuctionDto>(auction);
+
+        await _publishEndpoint.Publish(_mapper.Map<AuctionCreated>(newAuction));
+
         if(!result) return BadRequest("Could not save changes to the database");
 
         //我们还需要告诉客户端我们已经成功创建了一个拍卖品
         //我们想要告诉them the location of the newly created resource which is GetAuctionById
-        return CreatedAtAction(nameof(GetAuctionById), new {auction.Id}, _mapper.Map<AuctionDto>(auction));//从entity映射到dto
+        return CreatedAtAction(nameof(GetAuctionById), new {auction.Id},newAuction);//从entity映射到dto
     }
 
 
