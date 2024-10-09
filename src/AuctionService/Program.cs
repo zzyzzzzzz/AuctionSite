@@ -1,4 +1,5 @@
 using AuctionService.Data;
+using MassTransit;
 using Microsoft.EntityFrameworkCore;
 
 
@@ -16,6 +17,14 @@ builder.Services.AddDbContext<AuctionDbContext>(opt =>
 });
 
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());// 注册AutoMapper服务,后面的是location of the assemblies
+builder.Services.AddMassTransit(X =>
+{
+    X.UsingRabbitMq((context, cfg) =>
+    {        
+        cfg.ConfigureEndpoints(context);
+    });
+});
+
 
 var app = builder.Build();// 构建应用程序
 

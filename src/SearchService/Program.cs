@@ -1,8 +1,10 @@
 using System.Net;
+using MassTransit;
 using MongoDB.Driver;
 using MongoDB.Entities;
 using Polly;
 using Polly.Extensions.Http;
+using SearchService.Consumers;
 using SearchService.Data;
 using SearchService.Models;
 using SearchService.Services;
@@ -12,9 +14,25 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 
 builder.Services.AddControllers();
+
+builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 //加上addpolicyhandler方法 
 builder.Services.AddHttpClient<AuctionSvcHttpClient>().AddPolicyHandler(GetPolicy());
+builder.Services.AddMassTransit(X =>
+{
+    //需要告诉它在哪里可以找到我们正在创造的消费者
+    //我们在同一名称空间中创建的任何其他消费者都将自动通过公共交通进行注册。
+    X.AddConsumersFromNamespaceContaining<AuctionCreatedConsumer>();
 
+    //为了区分 endpoint 名称，我们将使用 kebab case，加上 search 前缀
+    X.SetEndpointNameFormatter(new KebabCaseEndpointNameFormatter("search", false));
+
+    
+    X.UsingRabbitMq((context, cfg) =>
+    {        
+        cfg.ConfigureEndpoints(context);
+    });
+});
 
 var app = builder.Build();
 
