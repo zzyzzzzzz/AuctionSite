@@ -19,6 +19,13 @@ builder.Services.AddDbContext<AuctionDbContext>(opt =>
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());// 注册AutoMapper服务,后面的是location of the assemblies
 builder.Services.AddMassTransit(X =>
 {
+    X.AddEntityFrameworkOutbox<AuctionDbContext>(o =>
+    {
+        o.QueryDelay = TimeSpan.FromSeconds(10);
+         o.UsePostgres();
+        o.UseBusOutbox();
+    });
+
     X.UsingRabbitMq((context, cfg) =>
     {        
         cfg.ConfigureEndpoints(context);

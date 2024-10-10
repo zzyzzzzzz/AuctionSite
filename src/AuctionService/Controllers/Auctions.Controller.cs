@@ -69,11 +69,13 @@ public class AuctionsController : ControllerBase //ControllerBase是一个ASP.NE
 
         _context.Auctions.Add(auction);
 
-        var result = await _context.SaveChangesAsync()> 0 ; //if is 0 then means no changes were made
-
         var newAuction = _mapper.Map<AuctionDto>(auction);
 
         await _publishEndpoint.Publish(_mapper.Map<AuctionCreated>(newAuction));
+
+        var result = await _context.SaveChangesAsync()> 0 ; //if is 0 then means no changes were made
+
+       
 
         if(!result) return BadRequest("Could not save changes to the database");
 

@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
-using AuctionService.Entities; 
+using AuctionService.Entities;
+using MassTransit;
 // 引入EntityFrameworkCore的命名空间，方便使用DbContext
 //EF Core 是一个流行的 ORM（对象关系映射）框架，允许开发者使用 .NET 对象来与数据库交互。
 //引入这个命名空间后，你可以直接使用其中的类和功能，比如 DbContext 和 DbSet。
@@ -20,5 +21,17 @@ namespace AuctionService.Data//// 定义一个名为AuctionService.Data的命名
 
        //Basic CRUD operations
         public DbSet<Auction> Auctions { get; set; }  // 创建一个名为Auctions的表//then give a pluralized name使用复数名 for the item 当定义 DbSet 时，应该使用复数形式的名称，以便更清楚地表达该集合是多个实体的集合
+    
+    
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+
+            modelBuilder.AddInboxStateEntity();
+            modelBuilder.AddOutboxMessageEntity();
+            modelBuilder.AddOutboxStateEntity();
+        }
     }
+
+
 }
