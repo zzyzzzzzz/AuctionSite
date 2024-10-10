@@ -23,6 +23,9 @@ public class AuctionCreatedConsumer : IConsumer<AuctionCreated>
     
         var item = _mapper.Map<Item>(context.Message);
 
+        //举一个特例，如果model是Foo，我们就抛出一个异常
+        if(item.Model == "Foo") throw new ArgumentException("Cannot sell cars with name of Foo");
+
         await item.SaveAsync();//如果database save失败，会抛出异常
     }
 }
