@@ -103,6 +103,8 @@ public class AuctionsController : ControllerBase //ControllerBase是一个ASP.NE
             auction.Item.Year = updateAuctionDto.Year ?? auction.Item.Year;
             //这后面我们需要把UpdateAuctionDto中的int 转为 int? 因为int?可以为null
 
+            await _publishEndpoint.Publish(_mapper.Map<AuctionUpdated>(auction));
+
             var result = await _context.SaveChangesAsync() > 0;
 
             if(result) return Ok();
@@ -122,6 +124,10 @@ public class AuctionsController : ControllerBase //ControllerBase是一个ASP.NE
         //TODO: Check if seller == username
 
         _context.Auctions.Remove(auction);
+
+        await _publishEndpoint.Publish<AuctionDeleted>(new { Id = auction.Id.ToString() });
+
+
         var result = await _context.SaveChangesAsync() > 0;
         if(!result) return BadRequest("Problem deleting the auction");
         return Ok();
