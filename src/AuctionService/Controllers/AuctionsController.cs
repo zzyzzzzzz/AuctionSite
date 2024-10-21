@@ -7,6 +7,7 @@ using AuctionService.Entities;
 using AutoMapper.QueryableExtensions;
 using MassTransit;
 using Contracts;
+using Microsoft.AspNetCore.Authorization;
 
 
 namespace AuctionService.Controllers;
@@ -58,6 +59,7 @@ public class AuctionsController : ControllerBase //ControllerBase是一个ASP.NE
         
     }
 
+    [Authorize]
     [HttpPost]
     public async Task<ActionResult<AuctionDto>> CreateAuction(CreateAuctionDto auctionDto)
 
@@ -65,7 +67,7 @@ public class AuctionsController : ControllerBase //ControllerBase是一个ASP.NE
         var auction = _mapper.Map<Auction>(auctionDto);
          
         //TODO: Add current user as seller
-        auction.Seller = "test";
+        auction.Seller = User.Identity.Name;
 
         _context.Auctions.Add(auction);
 
@@ -84,7 +86,7 @@ public class AuctionsController : ControllerBase //ControllerBase是一个ASP.NE
         return CreatedAtAction(nameof(GetAuctionById), new {auction.Id},newAuction);//从entity映射到dto
     }
 
-
+    [Authorize]
     [HttpPut("{id}")]
     //我们可以在这里返回一个没有任何类型参数的操作结果，并指定其名称,因为我们不需要返回任何数据
     public async Task<ActionResult> UpdateAuction(Guid id, UpdateAuctionDto updateAuctionDto)
@@ -95,7 +97,10 @@ public class AuctionsController : ControllerBase //ControllerBase是一个ASP.NE
 
             //然后检查是否找到了这个auction
             if(auction == null) return NotFound();   //没在database找到能update的
-            //TODO： Check if seller == username
+            
+            //TODO： Check if seller == username:
+            if (auction.Seller != User.Identity.Name) return Forbid(); //让用户知道他没有权限更新这个拍卖品
+
             auction.Item.Make = updateAuctionDto.Make ?? auction.Item.Make;
             auction.Item.Model = updateAuctionDto.Model ?? auction.Item.Model;
             auction.Item.Color = updateAuctionDto.Color ?? auction.Item.Color;
@@ -114,7 +119,7 @@ public class AuctionsController : ControllerBase //ControllerBase是一个ASP.NE
 
 
 
-
+    [Authorize]
     [HttpDelete("{id}")] //删除一个拍卖品 这里要id是因为我们需要知道删除哪个拍卖品
     public async Task<ActionResult> DeleteAuction(Guid id)
     {
@@ -122,6 +127,7 @@ public class AuctionsController : ControllerBase //ControllerBase是一个ASP.NE
         if(auction == null) return NotFound();
 
         //TODO: Check if seller == username
+        if (auction.Seller != User.Identity.Name) return Forbid();
 
         _context.Auctions.Remove(auction);
 
