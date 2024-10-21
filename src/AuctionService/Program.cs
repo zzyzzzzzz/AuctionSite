@@ -2,6 +2,7 @@ using AuctionService;
 using AuctionService.Data;
 using MassTransit;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -28,9 +29,21 @@ builder.Services.AddMassTransit(x =>
     });
 });
 
+//这里加上identity server的验证
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.Authority = builder.Configuration["IdentityServiceUrl"];
+        options.RequireHttpsMetadata = false;
+        options.TokenValidationParameters.ValidateAudience = false;
+        options.TokenValidationParameters.NameClaimType = "username";
+    });
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
+//在用authorization之前，一定要先用authentication
+app.UseAuthentication();
 
 app.UseAuthorization();
 
